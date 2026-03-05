@@ -1,5 +1,6 @@
 # Flask 게시판 애플리케이션 메인 파일
 # 라우팅(URL 처리)과 앱 설정을 담당한다.
+# REST API + Swagger UI: http://127.0.0.1:5000/api/docs
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from markupsafe import Markup, escape
@@ -15,9 +16,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bulletin.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # 세션·플래시 메시지 암호화에 사용하는 비밀 키 (배포 시 반드시 변경)
 app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
+# flask-restx가 Flask 에러 핸들러를 덮어쓰지 않도록 설정
+app.config['ERROR_404_HELP'] = False
 
 # SQLAlchemy를 현재 Flask 앱과 연결
 db.init_app(app)
+
+# REST API (flask-restx) 등록 - Swagger UI: /api/docs
+from api import api as rest_api
+rest_api.init_app(app)
 
 # 앱 컨텍스트 안에서 테이블이 없으면 자동으로 생성
 with app.app_context():
