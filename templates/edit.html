@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}게시글 수정 - 게시판{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>게시글 수정</h2>
+    <form method="post" action="{{ url_for('post_edit', post_id=post.id) }}">
+        <div class="form-group">
+            <label for="title">제목 *</label>
+            <input type="text" id="title" name="title" value="{{ post.title }}" required maxlength="200">
+        </div>
+        <div class="form-group">
+            <label for="content">내용 *</label>
+            <textarea id="content" name="content" required rows="12">{{ post.content }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호 확인 *</label>
+            <input type="password" id="password" name="password" required maxlength="100" placeholder="등록 시 입력한 비밀번호">
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('post_detail', post_id=post.id) }}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">수정 완료</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

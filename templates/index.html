@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}게시판 - 목록{% endblock %}
+
+{% block content %}
+<div class="board-header">
+    <h2>게시글 목록</h2>
+    <a href="{{ url_for('post_create') }}" class="btn btn-primary">글쓰기</a>
+</div>
+
+<form class="search-form" method="get" action="{{ url_for('index') }}">
+    <input type="text" name="search" value="{{ search }}" placeholder="검색어를 입력하세요">
+    <button type="submit" class="btn">검색</button>
+    {% if search %}
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">초기화</a>
+    {% endif %}
+</form>
+
+{% if search %}
+    <p class="search-info">"{{ search }}" 검색 결과: {{ posts.total }}건</p>
+{% endif %}
+
+<table class="board-table">
+    <thead>
+        <tr>
+            <th class="col-no">번호</th>
+            <th class="col-title">제목</th>
+            <th class="col-author">작성자</th>
+            <th class="col-date">작성일</th>
+            <th class="col-views">조회</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if posts.items %}
+            {% for post in posts.items %}
+            <tr>
+                <td class="center">{{ post.id }}</td>
+                <td>
+                    <a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                    {% if post.comments %}
+                        <span class="comment-count">[{{ post.comments|length }}]</span>
+                    {% endif %}
+                </td>
+                <td class="center">{{ post.author }}</td>
+                <td class="center">{{ post.created_at.strftime('%Y-%m-%d') }}</td>
+                <td class="center">{{ post.views }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="5" class="empty">등록된 게시글이 없습니다.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+{% if posts.pages > 1 %}
+<nav class="pagination">
+    {% if posts.has_prev %}
+        <a href="{{ url_for('index', page=posts.prev_num, search=search) }}">&laquo; 이전</a>
+    {% endif %}
+    {% for page_num in posts.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+        {% if page_num %}
+            <a href="{{ url_for('index', page=page_num, search=search) }}"
+               class="{{ 'active' if page_num == posts.page }}">{{ page_num }}</a>
+        {% else %}
+            <span>…</span>
+        {% endif %}
+    {% endfor %}
+    {% if posts.has_next %}
+        <a href="{{ url_for('index', page=posts.next_num, search=search) }}">다음 &raquo;</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endblock %}

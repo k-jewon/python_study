@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - 게시판{% endblock %}
+
+{% block content %}
+<div class="post-detail">
+    <div class="post-header">
+        <h2>{{ post.title }}</h2>
+        <div class="post-meta">
+            <span>작성자: <strong>{{ post.author }}</strong></span>
+            <span>작성일: {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            {% if post.updated_at != post.created_at %}
+                <span>수정일: {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            {% endif %}
+            <span>조회수: {{ post.views }}</span>
+        </div>
+    </div>
+
+    <div class="post-content">
+        {{ post.content | nl2br }}
+    </div>
+
+    <div class="post-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">목록</a>
+        <a href="{{ url_for('post_edit', post_id=post.id) }}" class="btn">수정</a>
+        <form method="post" action="{{ url_for('post_delete', post_id=post.id) }}" class="inline-form"
+              onsubmit="return confirmDelete(this)">
+            <input type="password" name="password" placeholder="비밀번호" required>
+            <button type="submit" class="btn btn-danger">삭제</button>
+        </form>
+    </div>
+</div>
+
+<div class="comment-section">
+    <h3>댓글 <span class="comment-count-badge">{{ post.comments|length }}</span></h3>
+
+    <ul class="comment-list">
+        {% if post.comments %}
+            {% for comment in post.comments %}
+            <li class="comment-item">
+                <div class="comment-meta">
+                    <strong>{{ comment.author }}</strong>
+                    <span>{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <p class="comment-content">{{ comment.content }}</p>
+                <form method="post" action="{{ url_for('comment_delete', comment_id=comment.id) }}" class="inline-form">
+                    <button type="submit" class="btn-link" onclick="return confirm('댓글을 삭제하시겠습니까?')">삭제</button>
+                </form>
+            </li>
+            {% endfor %}
+        {% else %}
+            <li class="empty">댓글이 없습니다.</li>
+        {% endif %}
+    </ul>
+
+    <form method="post" action="{{ url_for('comment_create', post_id=post.id) }}" class="comment-form">
+        <div class="comment-form-row">
+            <input type="text" name="author" placeholder="작성자" required maxlength="50">
+        </div>
+        <div class="comment-form-row">
+            <textarea name="content" placeholder="댓글을 입력하세요" required rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">댓글 등록</button>
+    </form>
+</div>
+
+<script>
+function confirmDelete(form) {
+    if (!confirm('게시글을 삭제하시겠습니까?')) return false;
+    return true;
+}
+</script>
+{% endblock %}
